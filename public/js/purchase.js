@@ -832,7 +832,6 @@ function get_purchase_entry_row_01(product_id, variation_id) {
 			dataType: 'html',
 			data: data,
 			success: function (result) {
-                alert("success")
 				append_purchase_lines_01(result, row_count);
 			},
 		});
@@ -849,12 +848,7 @@ function append_purchase_lines(data, row_count, trigger_change = false) {
 				update_purchase_entry_row_values(row)
 			);
 
-
             // will save the product name and qty, price to session...
-            // $('#purchase_invoice_entry_table_01 tbody').append(
-			// 	update_purchase_entry_row_values(row)
-			// );
-
             var productName, qty;
 
             // getting product name from session...
@@ -867,16 +861,18 @@ function append_purchase_lines(data, row_count, trigger_change = false) {
                     var $filteredRow = $('#purchase_invoice_entry_table_01 tbody tr').filter(function() {
                         var $inputElement = $(this).find('td:eq(1)');
                         var inputValue = $inputElement.text();
-
-						console.log(inputValue, productName)
         
                         return inputValue === productName;
                     });
+
+					// update the qty value, index..
+					update_purchase_entry_row_values(row).find('td:eq(2) input').val(qty);
+					update_purchase_entry_row_values(row).find('td:eq(0)').text("");
         
                     $filteredRow.replaceWith(update_purchase_entry_row_values(row));
                 },
                 error: function(xhr, status, error) {
-
+					console.log(error);
                 }
             })
 
@@ -1467,14 +1463,11 @@ if ($("div#import_invoice_dz").length) {
 				const existingProducts = response.existingProducts;
                 const nonExistingProducts = response.nonExistingProducts;
 
-                console.log(nonExistingProducts);
-
 				function renderTable() {
 					const tbody = $('#purchase_invoice_entry_table_01 tbody');
 					tbody.empty();
 
 					$.each(existingProducts, function (index, item) {
-                        
 						const row = $('<tr>').attr('data-row-id', item.id);
 
                         const deleteBtn = $('<i>')
@@ -1483,7 +1476,7 @@ if ($("div#import_invoice_dz").length) {
                             .css('cursor', 'pointer');
 
 						const qtyElement = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
 							class: 'form-control input-sm purchase_quantity',
 							id: '',
@@ -1492,54 +1485,52 @@ if ($("div#import_invoice_dz").length) {
 						});
 
 						const priceElement = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
-							class: 'form-control input-sm purchase_unit_cost',
+							class: 'form-control input-sm purchase_unit_cost purchase_unit_cost_without_discount',
 							id: '',
 							value: item.unit_price,
 							disabled: false
 						});
 
 						const discountPercent = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
-							class: 'form-control input-sm discount_percent',
+							class: 'form-control input-sm discount_percent inline_discounts',
 							id: '',
 							value: 0.00,
 							disabled: false
 						});
 
 						const priceElement_01 = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
-							class: 'form-control input-sm purchase_unit_cost_01',
+							class: 'form-control input-sm purchase_unit_cost_01 purchase_unit_cost',
 							id: '',
 							value: 0.00,
 							disabled: false
 						});
 
-						const lineTotal = $('<input>').attr({
-							type: 'number',
-							name: 'quantity',
-							class: 'form-control input-sm line_total',
-							id: '',
-							value: 0.00,
-							disabled: false
-						});
+						const lineTotal = $('<span>')
+							.addClass('row_subtotal_after_tax display_currency')
+							.append($('<input>').attr({
+								type: 'hidden',
+								class: 'row_subtotal_after_tax_hidden',
+							}));
 
 						const profitMargin = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
-							class: 'form-control input-sm profit_margin',
+							class: 'form-control input-sm profit_margin profit_percent',
 							id: '',
-							value: 0.00,
+							value: 25.00,
 							disabled: false
 						});
 
 						const sellingPrice = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
-							class: 'form-control input-sm selling_price',
+							class: 'form-control input-sm selling_price default_sell_price',
 							id: '',
 							value: 0.00,
 							disabled: false
@@ -1547,7 +1538,7 @@ if ($("div#import_invoice_dz").length) {
 
 
 						const columns = [
-							$('<td>').addClass("").text(index + 1),
+							$('<td>').addClass(""),
 							$('<td>').text(item.product.name + '(' + item.product.sku + ')'),
 							$('<td>').append(qtyElement),
 							$('<td>').append(priceElement),
@@ -1583,7 +1574,7 @@ if ($("div#import_invoice_dz").length) {
                             });
 
 						const qtyElement = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
 							class: 'form-control input-sm purchase_quantity',
 							id: '',
@@ -1592,54 +1583,52 @@ if ($("div#import_invoice_dz").length) {
 						});
 
 						const priceElement = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
-							class: 'form-control input-sm purchase_unit_cost',
+							class: 'form-control input-sm purchase_unit_cost purchase_unit_cost_without_discount',
 							id: '',
 							value: item.unit_price,
 							disabled: false
 						});
 
 						const discountPercent = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
-							class: 'form-control input-sm discount_percent',
+							class: 'form-control input-sm discount_percent inline_discounts',
 							id: '',
 							value: 0.00,
 							disabled: false
 						});
 
 						const priceElement_01 = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
-							class: 'form-control input-sm purchase_unit_cost_01',
+							class: 'form-control input-sm purchase_unit_cost_01 purchase_unit_cost',
 							id: '',
 							value: 0.00,
 							disabled: false
 						});
 
-						const lineTotal = $('<input>').attr({
-							type: 'number',
-							name: 'quantity',
-							class: 'form-control input-sm line_total',
-							id: '',
-							value: 0.00,
-							disabled: false
-						});
+						const lineTotal = $('<span>')
+							.addClass('row_subtotal_after_tax display_currency')
+							.append($('<input>').attr({
+								type: 'hidden',
+								class: 'row_subtotal_after_tax_hidden',
+							}));
 
 						const profitMargin = $('<input>').attr({
-							type: 'number',
-							name: 'quantity',
-							class: 'form-control input-sm profit_margin',
+							type: 'text',
+							name: `profit_percent`,
+							class: 'form-control input-sm profit_margin profit_percent',
 							id: '',
-							value: 0.00,
+							value: 25.00,
 							disabled: false
 						});
 
 						const sellingPrice = $('<input>').attr({
-							type: 'number',
+							type: 'text',
 							name: 'quantity',
-							class: 'form-control input-sm selling_price',
+							class: 'form-control input-sm selling_price default_sell_price',
 							id: '',
 							value: 0.00,
 							disabled: false
@@ -1647,7 +1636,7 @@ if ($("div#import_invoice_dz").length) {
 
 
 						const columns = [
-							$('<td>').addClass("").text(index + 1),
+							$('<td>').addClass(""),
 							$('<td>').text(item.name),
 							$('<td>').append(qtyElement),
 							$('<td>').append(priceElement),
@@ -1686,39 +1675,24 @@ if ($("div#import_invoice_dz").length) {
 
 				renderTable();
 
-				$(".btn-edit_01").click(function () {
-					const rowId = $(this).data('row-id');
-					const row = $('tr[data-row-id="' + rowId + '"]');
-					console.log("edit: ", rowId)
-
-					row.find('input').prop('disabled', false);
-				});
-
-				$(".btn-delete_01").click(function () {
-					const rowId = $(this).data('row-id');
-					console.log(rowId);
-					const indexToDelete = items.findIndex(function (obj) {
-						return obj.id === rowId;
-					});
-
-					if (indexToDelete !== -1) {
-						// Deleting the object at the specified index
-						items.splice(indexToDelete, 1);
-					}
-
-					renderTable();
-				});
-
                 // $("#import_purchase_invoice_modal").on('modal_opened', function(event) {
                 //     alert("opened");
                 //     renderTable();
                 // })
 
 				// convert to main page...
-				$("#import_purchase_invoice_confirm").click(function () {
+				$("#import_purchase_invoice_confirm").on('click', function () {
                     // $('#import_purchase_invoice_modal').modal('hide');
 
 					const productsTable = document.getElementById("purchase_invoice_entry_table_01");
+
+					// Deleting all of delete btns to confirm...
+					$('.add_purchase_entry_row_01').remove();
+
+					var elements = document.getElementsByClassName('add_purchase_entry_row_01');
+					while (elements.length > 0) {
+						elements[0].parentNode.removeChild(elements[0]);
+					}
 
 					append_purchase_lines(productsTable, 10, false);
 
@@ -1893,7 +1867,6 @@ $("#purchase_requisition_ids").on("select2:unselect", function (e) {
 
 $(document).ready(function () {
 	$("#product_add_btn").click(function () {
-		console.log("clicked");
 		$("#product_add_form").submit();
 	})
 })
