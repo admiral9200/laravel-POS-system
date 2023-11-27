@@ -173,7 +173,6 @@ $(document).ready(function () {
 				minLength: 2,
 				response: function (event, ui) {
 					if (ui.content.length == 1) {
-                        console.log(ui);
 						ui.item = ui.content[0];
 						$(this)
 							.data('ui-autocomplete')
@@ -235,7 +234,7 @@ $(document).ready(function () {
 		});
 	});
 
-    $(document).on('click', '.add_purchase_entry_row_01', function () {
+	$(document).on('click', '.add_purchase_entry_row_01', function () {
 		swal({
 			title: LANG.sure,
 			icon: 'success',
@@ -243,43 +242,95 @@ $(document).ready(function () {
 			dangerMode: true,
 		}).then(value => {
 			if (value) {
-                const productName = $(this).closest('tr').find('td:eq(1)').text();
-                const qty = $(this).closest('tr').find('td:eq(2) input').val();
-                const price = $(this).closest('tr').find('td:eq(3) input').val();
-                
-                var container = $('.quick_add_product_modal');
+				const productName = $(this).closest('tr').find('td:eq(1)').text();
+				const qty = $(this).closest('tr').find('td:eq(2) input').val();
+				const price = $(this).closest('tr').find('td:eq(3) input').val();
 
-                $.ajax({
-                    url: '/purchases/save-value-to-session',
-                    method: 'POST',
-                    data: {
-                        product_name: productName,
-                        qty: qty
-                    },
-                    success: function(res) {
-                        if(res.success) {
-                            toastr.success("Saving to session OK!");
+				var container = $('.quick_add_product_modal');
 
-                            // opening add modal...
-                            $.ajax({
-                                url: '/products/quick_add_invoice_modal?product_name=' + productName + '&price=' + price,
-                                dataType: 'html',
-                                success: function (result) {
-                                    $(container)
-                                        .html(result)
-                                        .modal('show');
-            
-                                        $("#import_purchase_invoice_modal").hide();
-                                },
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        toastr.error("Saving to session Failed!");
-                    }
-                })
+				$.ajax({
+					url: '/purchases/save-value-to-session',
+					method: 'POST',
+					data: {
+						product_name: productName,
+						qty: qty
+					},
+					success: function (res) {
+						if (res.success) {
+							toastr.success("Saving to session OK!");
 
-                
+							// opening add modal...
+							$.ajax({
+								url: '/products/quick_add_invoice_modal?product_name=' + productName + '&price=' + price,
+								dataType: 'html',
+								success: function (result) {
+									$(container)
+										.html(result)
+										.modal('show');
+
+									$("#import_purchase_invoice_modal").hide();
+								},
+							});
+						}
+					},
+					error: function (xhr, status, error) {
+						toastr.error("Saving to session Failed!");
+					}
+				})
+
+
+			}
+		});
+	});
+
+	
+	// Replace an item with an existing one...
+	$(document).on('click', '.replace_purchase_entry_row', function () {
+		swal({
+			title: LANG.sure,
+			icon: 'success',
+			buttons: true,
+			dangerMode: true,
+		}).then(value => {
+			if (value) {
+				const productName = $(this).closest('tr').find('td:eq(1)').text();
+				const qty = $(this).closest('tr').find('td:eq(2) input').val();
+				const price = $(this).closest('tr').find('td:eq(3) input').val();
+
+				var container = $('.quick_add_product_modal');
+
+				$.ajax({
+					url: '/purchases/save-value-to-session',
+					method: 'POST',
+					data: {
+						product_name: productName,
+						qty: qty,
+						price: price
+					},
+					success: function (res) {
+						if (res.success) {
+							toastr.success("Saving to session OK!");
+
+							// opening add modal...
+							$.ajax({
+								url: '/products/replace_invoice_modal?product_name=' + productName + '&qty=' + qty + '&price=' + price,
+								dataType: 'html',
+								success: function (result) {
+									$(container)
+										.html(result)
+										.modal('show');
+
+									$("#import_purchase_invoice_modal").hide();
+								},
+							});
+						}
+					},
+					error: function (xhr, status, error) {
+						toastr.error("Saving to session Failed!");
+					}
+				})
+
+
 			}
 		});
 	});
@@ -777,7 +828,7 @@ $(document).ready(function () {
 		__write_number(cp_element, unit_cost);
 		cp_element.change();
 	});
-    
+
 	toggle_search();
 });
 
@@ -810,7 +861,7 @@ function get_purchase_entry_row(product_id, variation_id) {
 }
 
 function get_purchase_entry_row_01(product_id, variation_id) {
-    alert("111")
+	alert("111")
 	if (product_id) {
 		var row_count = $('#row_count').val();
 		var location_id = $('#location_id').val();
@@ -848,33 +899,33 @@ function append_purchase_lines(data, row_count, trigger_change = false) {
 				update_purchase_entry_row_values(row)
 			);
 
-            // will save the product name and qty, price to session...
-            var productName, qty;
+			// will save the product name and qty, price to session...
+			var productName, qty;
 
-            // getting product name from session...
-            $.ajax({
-                url: '/purchases/get-value-from-session',
-                method: 'GET',
-                success: function(response) {
-                    productName = response.productName;
-                    qty = response.qty;
-                    var $filteredRow = $('#purchase_invoice_entry_table_01 tbody tr').filter(function() {
-                        var $inputElement = $(this).find('td:eq(1)');
-                        var inputValue = $inputElement.text();
-        
-                        return inputValue === productName;
-                    });
+			// getting product name from session...
+			$.ajax({
+				url: '/purchases/get-value-from-session',
+				method: 'GET',
+				success: function (response) {
+					productName = response.productName;
+					qty = response.qty;
+					var $filteredRow = $('#purchase_invoice_entry_table_01 tbody tr').filter(function () {
+						var $inputElement = $(this).find('td:eq(1)');
+						var inputValue = $inputElement.text();
+
+						return inputValue === productName;
+					});
 
 					// update the qty value, index..
 					update_purchase_entry_row_values(row).find('td:eq(2) input').val(qty);
 					update_purchase_entry_row_values(row).find('td:eq(0)').text("");
-        
-                    $filteredRow.replaceWith(update_purchase_entry_row_values(row));
-                },
-                error: function(xhr, status, error) {
+
+					$filteredRow.replaceWith(update_purchase_entry_row_values(row));
+				},
+				error: function (xhr, status, error) {
 					console.log(error);
-                }
-            })
+				}
+			})
 
 			update_row_price_for_exchange_rate(row);
 
@@ -901,7 +952,7 @@ function append_purchase_lines(data, row_count, trigger_change = false) {
 }
 
 function append_purchase_lines_01(data, row_count, trigger_change = false) {
-    alert("here")
+	alert("here")
 	$(data)
 		.find('.purchase_quantity')
 		.each(function () {
@@ -1457,11 +1508,11 @@ if ($("div#import_invoice_dz").length) {
 				toastr.success(response.msg);
 
 				$("#item-adding-form").show();
-                $("#import_purchase_invoice_confirm").show();
-                $("#import_purchase_invoice").hide();
+				$("#import_purchase_invoice_confirm").show();
+				$("#import_purchase_invoice").hide();
 
 				const existingProducts = response.existingProducts;
-                const nonExistingProducts = response.nonExistingProducts;
+				const nonExistingProducts = response.nonExistingProducts;
 
 				function renderTable() {
 					const tbody = $('#purchase_invoice_entry_table_01 tbody');
@@ -1470,10 +1521,10 @@ if ($("div#import_invoice_dz").length) {
 					$.each(existingProducts, function (index, item) {
 						const row = $('<tr>').attr('data-row-id', item.id);
 
-                        const deleteBtn = $('<i>')
-                            .addClass('fa fa-times remove_purchase_entry_row text-danger')
-                            .attr('title', 'Remove')
-                            .css('cursor', 'pointer');
+						const deleteBtn = $('<i>')
+							.addClass('fa fa-times remove_purchase_entry_row text-danger')
+							.attr('title', 'Remove')
+							.css('cursor', 'pointer');
 
 						const qtyElement = $('<input>').attr({
 							type: 'text',
@@ -1554,24 +1605,34 @@ if ($("div#import_invoice_dz").length) {
 						tbody.append(row);
 					})
 
-                    $.each(nonExistingProducts, function (index, item) {
-                        
+					$.each(nonExistingProducts, function (index, item) {
+
 						const row = $('<tr>').attr('data-row-id', item.id);
 
-                        const deleteBtn = $('<i>')
-                            .addClass('fa fa-times remove_purchase_entry_row text-danger')
-                            .attr('title', 'Remove')
-                            .css('cursor', 'pointer');
+						const deleteBtn = $('<i>')
+							.addClass('fa fa-times remove_purchase_entry_row text-danger')
+							.attr('title', 'Remove')
+							.css('cursor', 'pointer');
 
-                        const addBtn = $('<span>')
-                            .addClass('glyphicon glyphicon-plus add_purchase_entry_row_01 text-primary')
-                            .attr('title', 'Add new product')
-                            .css({
-                                'cursor': 'pointer',
-                                'width': '30px',
-                                'margin-right' : '20px',
-                                'font-size': '24px'
-                            });
+						const addBtn = $('<span>')
+							.addClass('glyphicon glyphicon-plus add_purchase_entry_row_01 text-primary')
+							.attr('title', 'Add new product')
+							.css({
+								'cursor': 'pointer',
+								'width': '30px',
+								'margin-right': '20px',
+								'font-size': '24px'
+							});
+
+						const replaceBtn = $('<span>')
+							.addClass('glyphicon glyphicon-refresh replace_purchase_entry_row text-primary')
+							.attr('title', 'Replace with an existing item')
+							.css({
+								'cursor': 'pointer',
+								'width': '30px',
+								'margin-right': '20px',
+								'font-size': '24px'
+							});
 
 						const qtyElement = $('<input>').attr({
 							type: 'text',
@@ -1645,10 +1706,10 @@ if ($("div#import_invoice_dz").length) {
 							$('<td>').append(lineTotal),
 							$('<td>').append(profitMargin),
 							$('<td>').append(sellingPrice),
-							$('<td>').append(addBtn).append(deleteBtn)
+							$('<td>').append(addBtn).append(replaceBtn).append(deleteBtn)
 						];
 
-                        columns[1].css('color', 'red');
+						columns[1].css('color', 'red');
 
 						row.append(columns);
 						tbody.append(row);
@@ -1675,14 +1736,14 @@ if ($("div#import_invoice_dz").length) {
 
 				renderTable();
 
-                // $("#import_purchase_invoice_modal").on('modal_opened', function(event) {
-                //     alert("opened");
-                //     renderTable();
-                // })
+				// $("#import_purchase_invoice_modal").on('modal_opened', function(event) {
+				//     alert("opened");
+				//     renderTable();
+				// })
 
 				// convert to main page...
 				$("#import_purchase_invoice_confirm").on('click', function () {
-                    // $('#import_purchase_invoice_modal').modal('hide');
+					// $('#import_purchase_invoice_modal').modal('hide');
 
 					const productsTable = document.getElementById("purchase_invoice_entry_table_01");
 
@@ -1696,12 +1757,12 @@ if ($("div#import_invoice_dz").length) {
 
 					append_purchase_lines(productsTable, 10, false);
 
-                    update_table_total();
-                    update_grand_total();
-                    update_table_sr_number();
+					update_table_total();
+					update_grand_total();
+					update_table_sr_number();
 
-                    $("#import_purchase_invoice_confirm").hide();
-                    $("#import_purchase_invoice").show();
+					$("#import_purchase_invoice_confirm").hide();
+					$("#import_purchase_invoice").show();
 				})
 
 
@@ -1731,7 +1792,7 @@ if ($("div#import_invoice_dz").length) {
 										buttons: [LANG.cancel, LANG.ok],
 									}).then(value => {
 										if (value) {
-                                            $('#import_purchase_invoice_modal').modal('hide');
+											$('#import_purchase_invoice_modal').modal('hide');
 
 											var container = $('.quick_add_product_modal');
 											$.ajax({
@@ -1759,7 +1820,7 @@ if ($("div#import_invoice_dz").length) {
 						};
 				}
 
-                
+
 			} else {
 				toastr.error(response.msg);
 			}

@@ -269,7 +269,7 @@ class InvoiceController extends Controller
                 $nameSimilarity = similar_text($name, $product->name, $namePercent);
                 $skuSimilarity = similar_text($sku, $product->sku, $skuPercent);
 
-                if ($namePercent > 90 || $skuPercent > 90) {
+                if ($namePercent > 95 || $skuPercent > 95) {
                     $matchingProduct = $product;
                     $maxSimilarity = max($namePercent, $skuPercent);
                     break;

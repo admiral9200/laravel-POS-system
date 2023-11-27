@@ -749,6 +749,7 @@
 
 @include('purchase.partials.import_purchase_products_modal')
 @include('purchase.partials.import_purchase_invoice_modal')
+@include('purchase.partials.replace_invoice_modal')
 <!-- /.content -->
 @endsection
 

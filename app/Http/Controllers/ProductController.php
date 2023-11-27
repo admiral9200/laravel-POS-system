@@ -1472,6 +1472,20 @@ class ProductController extends Controller
                 ->with(compact('categories', 'brands', 'units', 'taxes', 'barcode_types', 'default_profit_percent', 'tax_attributes', 'product_name', 'qty', 'price', 'locations', 'product_for', 'enable_expiry', 'enable_lot', 'module_form_parts', 'business_locations', 'common_settings', 'warranties'));
     }
 
+    public function replaceInvoiceModal() 
+    {
+        if (! auth()->user()->can('product.create')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $product_name = ! empty(request()->input('product_name')) ? request()->input('product_name') : '';
+        $qty = ! empty(request()->input('qty')) ? request()->input('qty') : '';
+        $price = ! empty(request()->input('price')) ? request()->input('price') : '';
+
+        return view('purchase.partials.replace_invoice_modal')
+                ->with(compact('product_name'));
+    }
+
     /**
      * Store a newly created resource in storage.
      *
